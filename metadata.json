@@ -1,0 +1,8 @@
+{
+  "name": "Hotel & Day Use - Consumo Digital",
+  "description": "Sistema integrado de consumo digital para hotelaria e day use com PDV do atendente, conferência móvel do hóspede e fechamento de caixa.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

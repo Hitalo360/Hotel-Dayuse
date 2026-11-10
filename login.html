@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login de Funcionários · Hotel &amp; Day Use</title>
+  <meta name="description" content="Autenticação e controle de acesso para atendentes, operadores de caixa e gerentes." />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body class="bg-stone-900 text-stone-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="max-w-md w-full bg-stone-950 p-6 sm:p-8 rounded-3xl border border-stone-800 shadow-2xl">
+    
+    <!-- Cabeçalho de Identidade -->
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-2xl mx-auto mb-3">
+        H
+      </div>
+      <h1 class="text-xl font-extrabold text-white tracking-tight">Hotel &amp; Day Use</h1>
+      <p class="text-xs text-stone-400 mt-1">Acesso Restrito · Funcionários e Administração</p>
+    </div>
+
+    <!-- Formulário de Autenticação -->
+    <form id="form-login" class="space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-stone-300 mb-1">E-mail Corporativo</label>
+        <input
+          type="email"
+          id="login-email"
+          required
+          placeholder="exemplo@hotel.com.br"
+          class="w-full text-xs px-3.5 py-2.5 bg-stone-900 border border-stone-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-stone-300 mb-1">Senha de Acesso</label>
+        <input
+          type="password"
+          id="login-senha"
+          required
+          placeholder="••••••••"
+          class="w-full text-xs px-3.5 py-2.5 bg-stone-900 border border-stone-800 rounded-xl text-white focus:outline-none focus:border-amber-500 transition-colors"
+        />
+      </div>
+
+      <div id="login-alerta-erro" class="p-3 bg-rose-950/80 border border-rose-800 text-rose-300 text-xs rounded-xl hidden">
+        Credenciais inválidas ou perfil inativo.
+      </div>
+
+      <button
+        type="submit"
+        id="btn-submeter-login"
+        class="w-full touch-target py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm mt-2"
+      >
+        Entrar no Sistema
+      </button>
+    </form>
+
+    <!-- Atalhos Rápidos para Demonstração e Avaliação -->
+    <div class="mt-6 pt-5 border-t border-stone-800/80">
+      <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400 mb-2 text-center">
+        Credenciais Rápidas de Teste (Clique para preencher)
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <button
+          type="button"
+          class="btn-atalho-login p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-left transition-colors"
+          data-email="mariana.atendente@hotel.com.br"
+          data-funcao="atendente"
+        >
+          <div class="font-bold text-amber-400">Mariana Silva</div>
+          <div class="text-[10px] text-stone-400">Atendente (PDV)</div>
+        </button>
+
+        <button
+          type="button"
+          class="btn-atalho-login p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-left transition-colors"
+          data-email="carlos.atendente@hotel.com.br"
+          data-funcao="recepcao"
+        >
+          <div class="font-bold text-sky-400">Carlos Oliveira</div>
+          <div class="text-[10px] text-stone-400">Recepção &amp; Check-in</div>
+        </button>
+
+        <button
+          type="button"
+          class="btn-atalho-login p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-left transition-colors"
+          data-email="fernanda.caixa@hotel.com.br"
+          data-funcao="caixa"
+        >
+          <div class="font-bold text-emerald-400">Fernanda Rocha</div>
+          <div class="text-[10px] text-stone-400">Operadora de Caixa</div>
+        </button>
+
+        <button
+          type="button"
+          class="btn-atalho-login p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-left transition-colors"
+          data-email="roberto.gerente@hotel.com.br"
+          data-funcao="gerente"
+        >
+          <div class="font-bold text-amber-400">Roberto Albuquerque</div>
+          <div class="text-[10px] text-stone-400">Gerência / Admin</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="text-center mt-6 flex items-center justify-center gap-3 text-xs text-stone-400">
+      <a href="/index.html" class="hover:text-white underline">Simulador</a>
+      <span>·</span>
+      <a href="/recepcao.html" class="hover:text-white underline">Recepção</a>
+      <span>·</span>
+      <a href="/atendente.html" class="hover:text-white underline">PDV Atendente</a>
+      <span>·</span>
+      <a href="/caixa.html" class="hover:text-white underline">Caixa</a>
+      <span>·</span>
+      <a href="/admin.html" class="hover:text-white underline font-semibold text-amber-400">Admin</a>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/db-schema.js"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const emailInput = document.getElementById('login-email');
+      const senhaInput = document.getElementById('login-senha');
+      const erroDiv = document.getElementById('login-alerta-erro');
+      const form = document.getElementById('form-login');
+
+      // Botões de preenchimento rápido para avaliação
+      document.querySelectorAll('.btn-atalho-login').forEach(btn => {
+        btn.addEventListener('click', () => {
+          emailInput.value = btn.dataset.email;
+          senhaInput.value = 'hotel123';
+          erroDiv.classList.add('hidden');
+        });
+      });
+
+      // Submissão do login com consulta à tabela 'perfis'
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        erroDiv.classList.add('hidden');
+
+        const email = emailInput.value.trim();
+        const senha = senhaInput.value.trim();
+
+        try {
+          const db = window.hotelSupabase || window.supabase;
+          const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
+
+          if (error || !data?.user) {
+            erroDiv.textContent = error?.message || 'E-mail não localizado na tabela de perfis ativos.';
+            erroDiv.classList.remove('hidden');
+            return;
+          }
+
+          const user = data.user;
+          // Redirecionamento por função
+          if (user.funcao === 'gerente') {
+            window.location.href = '/admin.html';
+          } else if (user.funcao === 'recepcao' || email.includes('carlos')) {
+            window.location.href = '/recepcao.html';
+          } else if (user.funcao === 'atendente') {
+            window.location.href = '/atendente.html';
+          } else if (user.funcao === 'caixa') {
+            window.location.href = '/caixa.html';
+          } else {
+            window.location.href = '/index.html';
+          }
+        } catch (err) {
+          erroDiv.textContent = err.message || 'Falha na autenticação.';
+          erroDiv.classList.remove('hidden');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

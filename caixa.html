@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo de Caixa &amp; Encerramento · Hotel &amp; Day Use</title>
+  <meta name="description" content="Gestão financeira, registro de pagamentos, extrato de consumos e encerramento estrito de contas (RN15)." />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body class="bg-stone-100 text-stone-900 min-h-screen flex flex-col font-sans">
+
+  <!-- CABEÇALHO CORPORATIVO DO CAIXA -->
+  <header class="bg-stone-900 text-white border-b border-stone-800 sticky top-0 z-40 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo e Identificação do Módulo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+          H
+        </div>
+        <div>
+          <div class="text-sm font-bold tracking-tight flex items-center gap-2">
+            <span>Hotel &amp; Day Use</span>
+            <span class="text-[10px] font-mono uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
+              Caixa &amp; Encerramento (RN15)
+            </span>
+          </div>
+          <div class="text-[11px] text-stone-400">Terminal Financeiro de Recepção e Fechamento de Contas</div>
+        </div>
+      </div>
+
+      <!-- Links Rápidos de Navegação entre Módulos -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="/index.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Central / Simulador
+        </a>
+        <a href="/recepcao.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Recepção
+        </a>
+        <a href="/atendente.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          PDV Atendente
+        </a>
+        <a href="/cliente.html" target="_blank" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>Tela do Cliente</span>
+          <span class="text-[10px] opacity-70">↗</span>
+        </a>
+        <a href="/admin.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>⚙️ Admin / Cadastros</span>
+        </a>
+      </nav>
+
+      <!-- Operador de Caixa Ativo e Status do Turno -->
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div id="caixa-operador-nome" class="text-xs font-semibold text-stone-100">Carregando operador...</div>
+          <div class="flex items-center justify-end gap-1.5 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="caixa-status" class="text-[10px] text-emerald-400 font-medium font-mono">Caixa Aberto #01</span>
+          </div>
+        </div>
+
+        <select id="seletor-operador" class="bg-stone-800 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500">
+          <!-- Populado via JavaScript -->
+        </select>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- PAINEL DE CARDS COM RESUMO OPERACIONAL -->
+  <section class="max-w-7xl w-full mx-auto px-4 lg:px-6 pt-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      
+      <div class="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-2xs">
+        <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Contas Abertas</span>
+        <div id="card-total-abertas" class="text-lg font-extrabold text-stone-900 mt-0.5">0</div>
+        <div class="text-[11px] text-stone-500">Hospedagens e Day Use ativos</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-2xs">
+        <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider">🏨 Hospedagem (Quartos)</span>
+        <div id="card-total-hospedagem" class="text-lg font-extrabold text-amber-700 mt-0.5">0</div>
+        <div class="text-[11px] text-stone-500">Contas com quarto vinculado</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-2xs">
+        <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider">☀️ Day Use (Lazer)</span>
+        <div id="card-total-dayuse" class="text-lg font-extrabold text-sky-700 mt-0.5">0</div>
+        <div class="text-[11px] text-stone-500">Passaportes de dia sem quarto</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-stone-200 shadow-2xs">
+        <span class="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Saldo Total a Receber</span>
+        <div id="card-saldo-total-receber" class="text-lg font-extrabold text-emerald-700 mt-0.5">R$ 0,00</div>
+        <div class="text-[11px] text-stone-500">Soma de saldos devedores</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTEÚDO PRINCIPAL (GRID 12 COLUNAS) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- COLUNA ESQUERDA: LISTAGEM DE CONTAS E FILTROS (5 colunas) -->
+    <section class="lg:col-span-5 flex flex-col gap-4">
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-2xs flex-1 flex flex-col">
+        
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-stone-500">Contas de Permanência</h2>
+            <p class="text-[11px] text-stone-400">Diferenciação estrita de Hospedagem e Day Use</p>
+          </div>
+          <span id="badge-contador-filtradas" class="text-[11px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+            0 contas
+          </span>
+        </div>
+
+        <!-- Barra de Busca Instantânea -->
+        <div class="mb-3">
+          <input
+            type="text"
+            id="busca-conta"
+            placeholder="Buscar por quarto (ex: 204), hóspede ou CPF..."
+            class="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:border-stone-900 transition-all placeholder-stone-400"
+          />
+        </div>
+
+        <!-- Filtros Rápidos Segmentados -->
+        <div class="grid grid-cols-3 gap-1 p-1 bg-stone-100 rounded-xl mb-3" id="filtros-status-container">
+          <button type="button" data-filtro="aberta" class="btn-filtro-status py-1.5 text-xs font-semibold rounded-lg bg-white text-stone-900 shadow-2xs transition-all">
+            Abertas
+          </button>
+          <button type="button" data-filtro="fechamento" class="btn-filtro-status py-1.5 text-xs font-medium rounded-lg text-stone-600 hover:text-stone-900 transition-all">
+            A Quitar
+          </button>
+          <button type="button" data-filtro="todas" class="btn-filtro-status py-1.5 text-xs font-medium rounded-lg text-stone-600 hover:text-stone-900 transition-all">
+            Todas
+          </button>
+        </div>
+
+        <!-- Filtro Secundário por Categoria de Permanência -->
+        <div class="flex items-center gap-1.5 mb-3">
+          <span class="text-[10px] uppercase font-bold text-stone-400">Tipo:</span>
+          <button type="button" data-tipo="todos" class="btn-filtro-tipo px-2.5 py-1 text-[11px] font-semibold rounded-md bg-stone-900 text-white">
+            Todos
+          </button>
+          <button type="button" data-tipo="hospedagem" class="btn-filtro-tipo px-2.5 py-1 text-[11px] font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200">
+            🏨 Hospedagem
+          </button>
+          <button type="button" data-tipo="day_use" class="btn-filtro-tipo px-2.5 py-1 text-[11px] font-medium rounded-md bg-stone-100 text-stone-600 hover:bg-stone-200">
+            ☀️ Day Use
+          </button>
+        </div>
+
+        <!-- Tabela / Lista de Contas de Permanência -->
+        <div class="flex-1 overflow-y-auto max-h-[580px] border border-stone-100 rounded-xl divide-y divide-stone-100">
+          <div id="lista-contas-permanencia" class="divide-y divide-stone-100">
+            <!-- Populado via JavaScript -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- COLUNA DIREITA: EXTRATO FINANCEIRO, PAGAMENTOS E ENCERRAMENTO RN15 (7 colunas) -->
+    <section class="lg:col-span-7 flex flex-col gap-4">
+
+      <!-- Estado Inicial Vazio -->
+      <div id="painel-conta-vazio" class="bg-white rounded-2xl border border-stone-200 p-12 text-center text-stone-400 flex-1 flex flex-col items-center justify-center">
+        <div class="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center text-3xl mb-3">
+          📋
+        </div>
+        <h3 class="text-sm font-bold text-stone-900">Selecione uma conta para gerenciar</h3>
+        <p class="text-xs text-stone-500 max-w-sm mt-1 leading-relaxed">
+          Escolha uma permanência na lista à esquerda para consultar o extrato detalhado, registrar recebimentos e aplicar o encerramento com regras da RN15.
+        </p>
+      </div>
+
+      <!-- Detalhes da Conta Selecionada -->
+      <div id="painel-conta-detalhes" class="bg-white rounded-2xl border border-stone-200 p-5 shadow-2xs flex-1 flex flex-col gap-4 hidden">
+
+        <!-- CABEÇALHO DA CONTA SELECIONADA -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-stone-100 gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="conta-tipo-badge" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-amber-100 text-amber-800">
+                HOSPEDAGEM
+              </span>
+              <h2 id="conta-identificacao-titulo" class="text-base font-extrabold text-stone-900">
+                Quarto 204
+              </h2>
+              <span id="conta-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                ABERTA
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 mt-1">
+              <span id="conta-hospede-nome" class="text-xs font-semibold text-stone-800">Lucas Vinícius Mendes</span>
+              <span class="text-stone-300">·</span>
+              <span id="conta-documento" class="text-xs text-stone-500 font-mono">CPF: 042.891.332-15</span>
+            </div>
+            
+            <div id="conta-credenciais-info" class="text-[11px] text-stone-400 mt-0.5">
+              PIN de Acesso: <span id="conta-pin-valor" class="font-mono font-bold text-stone-700">4821</span>
+            </div>
+          </div>
+
+          <div class="text-left sm:text-right">
+            <div id="conta-checkin-data" class="text-[11px] text-stone-500 font-mono">Check-in: --/--/---- --:--</div>
+            <div id="conta-checkout-data" class="text-[11px] text-stone-400 font-mono">Check-out: Em aberto</div>
+          </div>
+        </div>
+
+        <!-- CARDS DE BALANÇO FINANCEIRO DA CONTA -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80">
+            <span class="text-[10px] uppercase font-bold text-stone-400">Consumo Confirmado</span>
+            <div id="resumo-total-consumo" class="text-sm font-extrabold text-stone-900 mt-0.5">R$ 0,00</div>
+          </div>
+
+          <div class="p-3 bg-stone-50 rounded-xl border border-stone-200/80">
+            <span class="text-[10px] uppercase font-bold text-stone-400">Total Estornado</span>
+            <div id="resumo-total-estorno" class="text-sm font-extrabold text-stone-500 mt-0.5">R$ 0,00</div>
+          </div>
+
+          <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200/60">
+            <span class="text-[10px] uppercase font-bold text-emerald-700">Total Pago</span>
+            <div id="resumo-total-pago" class="text-sm font-extrabold text-emerald-800 mt-0.5">R$ 0,00</div>
+          </div>
+
+          <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/80">
+            <span class="text-[10px] uppercase font-bold text-amber-800">Saldo a Quitar</span>
+            <div id="resumo-saldo-devedor" class="text-base font-extrabold text-amber-900 mt-0.5">R$ 0,00</div>
+          </div>
+        </div>
+
+        <!-- ALERTA DE PROPOSTAS PENDENTES (TRAVA RN15) -->
+        <div id="alerta-propostas-pendentes-rn15" class="p-3.5 bg-amber-100/90 text-amber-950 rounded-xl border border-amber-300 space-y-2 hidden">
+          <div class="flex items-center gap-2">
+            <span class="text-base">⚠️</span>
+            <div class="text-xs font-bold uppercase tracking-wider">Trava RN15: Propostas Aguardando Resolução</div>
+          </div>
+          <p class="text-xs text-amber-900">
+            O encerramento é <strong>estritamente proibido</strong> enquanto existirem propostas pendentes de aprovação pelo hóspede. 
+            Cancele-as ou aguarde a confirmação no celular do cliente antes de prosseguir.
+          </p>
+          <div id="lista-propostas-pendentes-travadas" class="space-y-1.5 pt-1">
+            <!-- Populado via JavaScript com botões de cancelamento -->
+          </div>
+        </div>
+
+        <!-- EXTRATO CRONOLÓGICO DETALHADO (CONSUMOS, ESTORNOS E PAGAMENTOS) -->
+        <div class="flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-500">
+              Extrato Financeiro Completo
+            </h4>
+            <span class="text-[11px] text-stone-400">Consumos, Estornos e Histórico de Pagamentos</span>
+          </div>
+
+          <div id="container-extrato-detalhado" class="space-y-2.5 max-h-56 overflow-y-auto pr-1 flex-1">
+            <!-- Populado via JavaScript -->
+          </div>
+        </div>
+
+        <!-- BLOCO 1: REGISTRO DE PAGAMENTOS (VINCULADO A PAGAMENTOS E MOVIMENTACOES_CAIXA) -->
+        <div class="pt-3 border-t border-stone-100 bg-stone-50 p-4 rounded-xl border border-stone-200/80">
+          <div class="flex items-center justify-between mb-2.5">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-stone-800">
+                Registrar Pagamento
+              </h4>
+              <span class="text-[11px] text-stone-500">Gera registro em <code class="text-[10px] bg-stone-200 px-1 py-0.5 rounded">pagamentos</code> e <code class="text-[10px] bg-stone-200 px-1 py-0.5 rounded">movimentacoes_caixa</code></span>
+            </div>
+
+            <button type="button" id="btn-preencher-saldo-total" class="text-xs font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1">
+              <span>Quitar Saldo Total</span>
+              <span class="text-[11px]">⚡</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+            
+            <!-- Valor do Pagamento -->
+            <div class="sm:col-span-6">
+              <label class="block text-[10px] font-bold uppercase text-stone-500 mb-1">Valor do Pagamento (R$)</label>
+              <div class="relative">
+                <span class="absolute left-3 top-2.5 text-xs text-stone-400 font-bold">R$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  id="input-valor-pagamento"
+                  placeholder="0,00"
+                  class="w-full text-xs pl-9 pr-3 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-stone-900 font-bold text-stone-900"
+                />
+              </div>
+            </div>
+
+            <!-- Forma de Pagamento -->
+            <div class="sm:col-span-6">
+              <label class="block text-[10px] font-bold uppercase text-stone-500 mb-1">Forma de Pagamento</label>
+              <select id="select-forma-pagamento" class="w-full text-xs px-3 py-2 bg-white border border-stone-300 rounded-lg focus:outline-none focus:border-stone-900 font-medium text-stone-800">
+                <option value="pix">⚡ PIX (Instantâneo)</option>
+                <option value="cartao_debito">💳 Cartão de Débito</option>
+                <option value="cartao_credito">💳 Cartão de Crédito</option>
+                <option value="dinheiro">💵 Dinheiro em Espécie</option>
+              </select>
+            </div>
+
+          </div>
+
+          <!-- Troco (opcional se dinheiro) -->
+          <div id="campo-calculo-troco" class="hidden grid grid-cols-2 gap-2 mb-3 p-2.5 bg-amber-50/50 rounded-lg border border-amber-200/50">
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-amber-800 mb-0.5">Valor Entregue pelo Cliente</label>
+              <input type="number" step="0.01" id="input-dinheiro-recebido" placeholder="0,00" class="w-full text-xs p-1.5 bg-white border border-amber-300 rounded" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase text-amber-800 mb-0.5">Troco a Devolver</label>
+              <div id="display-troco-devolver" class="text-sm font-extrabold text-stone-900 pt-1">R$ 0,00</div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="btn-lancar-pagamento"
+            class="w-full touch-target py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2"
+          >
+            <span>Confirmar Recebimento &amp; Registrar Caixa</span>
+          </button>
+        </div>
+
+        <!-- BLOCO 2: ENCERRAMENTO DEFINITIVO DA PERMANÊNCIA (VALIDAÇÃO ESTRITA RN15) -->
+        <div class="pt-3 border-t border-stone-100">
+          
+          <!-- Checklist Visual de Validação RN15 -->
+          <div class="bg-stone-50 p-3 rounded-xl border border-stone-200/80 mb-3 space-y-1.5">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-stone-500">
+              Critérios Obrigatórios de Fechamento (RN15)
+            </div>
+
+            <div class="flex items-center justify-between text-xs">
+              <span class="flex items-center gap-1.5" id="criterio-propostas-pendentes">
+                <span class="w-2 h-2 rounded-full bg-stone-300"></span>
+                <span>Propostas pendentes resolvidas:</span>
+              </span>
+              <span id="badge-criterio-propostas" class="font-bold text-[11px] text-stone-500">Verificando...</span>
+            </div>
+
+            <div class="flex items-center justify-between text-xs">
+              <span class="flex items-center gap-1.5" id="criterio-saldo-zerado">
+                <span class="w-2 h-2 rounded-full bg-stone-300"></span>
+                <span>Saldo financeiro rigorosamente quitado (R$ 0,00):</span>
+              </span>
+              <span id="badge-criterio-saldo" class="font-bold text-[11px] text-stone-500">Verificando...</span>
+            </div>
+          </div>
+
+          <!-- Botão de Encerramento e Invalidação de Credenciais -->
+          <button
+            type="button"
+            id="btn-encerrar-permanencia-rn15"
+            disabled
+            class="w-full touch-target py-3.5 bg-emerald-700 hover:bg-emerald-800 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
+          >
+            <span>Encerrar Permanência &amp; Invalidar Credenciais</span>
+          </button>
+
+          <div id="msg-status-encerramento" class="text-[11px] text-stone-400 text-center mt-1.5">
+            Aguardando cumprimento dos critérios RN15 para liberação.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL DE CONFIRMAÇÃO DE ESTORNO DE CONSUMO -->
+  <div id="modal-estorno-consumo" class="fixed inset-0 bg-stone-950/80 backdrop-blur-2xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-sm font-bold text-stone-900">Estorno Administrativo de Consumo</h4>
+        <button type="button" id="btn-fechar-modal-estorno" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+
+      <p class="text-xs text-stone-500 mb-3">
+        O valor deste pedido será cancelado, abatido do saldo devedor e registrado no livro de caixa.
+      </p>
+
+      <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 mb-3 text-xs space-y-1">
+        <div><strong>Código do Pedido:</strong> <span id="estorno-prop-codigo" class="font-mono text-amber-700">PROP-XXXX</span></div>
+        <div><strong>Valor a Estornar:</strong> <span id="estorno-prop-valor" class="font-bold text-stone-900">R$ 0,00</span></div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-semibold text-stone-700 mb-1">Justificativa do Estorno *</label>
+        <textarea id="estorno-motivo-input" rows="2" placeholder="Ex: Item devolvido, cobrança indevida, autorizada pela gerência..." class="w-full text-xs p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-stone-900"></textarea>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button type="button" id="btn-cancelar-estorno" class="flex-1 touch-target py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold">
+          Cancelar
+        </button>
+        <button type="button" id="btn-confirmar-estorno" class="flex-1 touch-target py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold">
+          Confirmar Estorno
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL OFICIAL: COMPROVANTE DE CHECK-OUT & QUITAÇÃO (IMPRESSÃO / AUDITORIA) -->
+  <div id="modal-recibo-checkout" class="fixed inset-0 bg-stone-950/80 backdrop-blur-2xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      
+      <!-- Cabeçalho do Recibo -->
+      <div class="text-center pb-4 border-b border-stone-200">
+        <div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl font-bold mb-2">
+          ✓
+        </div>
+        <h3 class="text-base font-extrabold text-stone-900">HOTEL &amp; DAY USE</h3>
+        <p class="text-[11px] text-stone-500">Comprovante de Encerramento de Permanência &amp; Quitação</p>
+        <div class="inline-block mt-1 text-[10px] font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded">
+          RN15: CONTA DEFINITIVAMENTE ENCERRADA · CREDENCIAIS INVALIDADAS
+        </div>
+      </div>
+
+      <!-- Detalhes do Hóspede e Permanência -->
+      <div class="py-4 space-y-2 text-xs font-mono border-b border-stone-200">
+        <div class="flex justify-between">
+          <span class="text-stone-500">Hóspede:</span>
+          <span id="recibo-hospede-nome" class="font-bold text-stone-900">Lucas Mendes</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Documento / CPF:</span>
+          <span id="recibo-documento" class="text-stone-800">042.891.332-15</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Identificação:</span>
+          <span id="recibo-identificacao" class="font-bold text-amber-700">Quarto 204</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Entrada (Check-in):</span>
+          <span id="recibo-checkin">--/--/---- --:--</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Saída (Check-out):</span>
+          <span id="recibo-checkout">--/--/---- --:--</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Operador Caixa:</span>
+          <span id="recibo-operador">Fernanda Rocha</span>
+        </div>
+      </div>
+
+      <!-- Resumo Financeiro da Estadia -->
+      <div class="py-4 space-y-2 text-xs font-mono border-b border-stone-200">
+        <div class="flex justify-between">
+          <span class="text-stone-500">Total Consumido:</span>
+          <span id="recibo-total-consumido" class="font-bold text-stone-900">R$ 0,00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-stone-500">Total Pago:</span>
+          <span id="recibo-total-pago" class="font-bold text-emerald-700">R$ 0,00</span>
+        </div>
+        <div class="flex justify-between pt-2 border-t border-dashed border-stone-300 text-sm font-extrabold">
+          <span>Saldo Remanescente:</span>
+          <span class="text-emerald-700">R$ 0,00 (QUITADO)</span>
+        </div>
+      </div>
+
+      <!-- Ações do Recibo -->
+      <div class="pt-4 flex items-center gap-2">
+        <button type="button" id="btn-imprimir-recibo" class="flex-1 touch-target py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
+          <span>🖨️ Imprimir Recibo</span>
+        </button>
+        <button type="button" id="btn-concluir-recibo" class="flex-1 touch-target py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-colors">
+          Concluir Check-out
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast de Notificações -->
+  <div id="toast-caixa" class="hidden"></div>
+
+  <!-- SCRIPTS DO SISTEMA -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/db-schema.js"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/barcode-scanner.js"></script>
+  <script src="/assets/js/caixa.js"></script>
+
+</body>
+</html>

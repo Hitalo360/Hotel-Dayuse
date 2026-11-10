@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Módulo de Recepção &amp; Check-in · Hotel &amp; Day Use</title>
+  <meta name="description" content="Cadastro de hóspedes, check-in para Hospedagem (com quarto) e Day Use (sem quarto), geração de PIN (RF07) e reemissão de credenciais (RF08)." />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body class="bg-stone-100 text-stone-900 min-h-screen flex flex-col font-sans">
+
+  <!-- CABEÇALHO CORPORATIVO DA RECEPÇÃO -->
+  <header class="bg-stone-900 text-white border-b border-stone-800 sticky top-0 z-40 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo e Identificação do Módulo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+          H
+        </div>
+        <div>
+          <div class="text-sm font-bold tracking-tight flex items-center gap-2">
+            <span>Hotel &amp; Day Use</span>
+            <span class="text-[10px] font-mono uppercase bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded border border-sky-500/30">
+              Recepção &amp; Check-in
+            </span>
+          </div>
+          <div class="text-[11px] text-stone-400">Controle de Entradas, Hóspedes e Credenciais (RN02 / RF07 / RF08)</div>
+        </div>
+      </div>
+
+      <!-- Links Rápidos de Navegação entre Módulos -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="/index.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Central / Simulador
+        </a>
+        <a href="/recepcao.html" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-stone-800 border border-stone-700 shadow-inner">
+          Recepção
+        </a>
+        <a href="/atendente.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          PDV Atendente
+        </a>
+        <a href="/cliente.html" target="_blank" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>Tela do Cliente</span>
+          <span class="text-[10px] opacity-70">↗</span>
+        </a>
+        <a href="/caixa.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Caixa &amp; Encerramento
+        </a>
+        <a href="/admin.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>⚙️ Admin / Cadastros</span>
+        </a>
+      </nav>
+
+      <!-- Operador Ativo e Status -->
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div id="recepcao-operador-nome" class="text-xs font-semibold text-stone-100">Carlos Eduardo Oliveira</div>
+          <div class="flex items-center justify-end gap-1.5 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-[10px] text-emerald-400 font-medium font-mono">Recepção Conectada</span>
+          </div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-xs text-stone-300 font-bold">
+          RC
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (LAYOUT EM DUAS COLUNAS) -->
+  <main class="max-w-7xl mx-auto w-full px-4 lg:px-8 py-6 flex-1 flex flex-col gap-6">
+
+    <!-- BARRA DE MÉTRICAS E RESUMO DO HOTEL -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      
+      <!-- Total Ativas -->
+      <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-medium text-stone-500 uppercase tracking-wider">Permanências Ativas</div>
+          <div class="text-2xl font-bold font-mono text-stone-900 mt-1" id="badge-total-ativas">0</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+          📋
+        </div>
+      </div>
+
+      <!-- Hospedagem com Quarto -->
+      <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-medium text-stone-500 uppercase tracking-wider">Hospedagem (Com Quarto)</div>
+          <div class="text-2xl font-bold font-mono text-sky-700 mt-1" id="badge-total-hospedagem">0</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-lg">
+          🏨
+        </div>
+      </div>
+
+      <!-- Day Use sem Quarto -->
+      <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-sm flex items-center justify-between">
+        <div>
+          <div class="text-xs font-medium text-stone-500 uppercase tracking-wider">Day Use (Sem Quarto)</div>
+          <div class="text-2xl font-bold font-mono text-amber-700 mt-1" id="badge-total-dayuse">0</div>
+        </div>
+        <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+          ☀️
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAINÉIS OPERACIONAIS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- COLUNA DA ESQUERDA: FORMULÁRIOS DE ENTRADA (CADASTRO E CHECK-IN) -->
+      <div class="lg:col-span-5 flex flex-col gap-6">
+
+        <!-- CARD 1: ABERTURA DE PERMANÊNCIA (CHECK-IN) -->
+        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+          
+          <div class="p-4 bg-stone-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-amber-400 text-lg">🔑</span>
+              <div>
+                <h2 class="text-sm font-bold tracking-tight">Abertura de Permanência (Check-in)</h2>
+                <p class="text-[11px] text-stone-300">Geração de conta e vínculo de credenciais</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-mono bg-stone-800 text-stone-300 px-2 py-0.5 rounded border border-stone-700">
+              RF07 / RN02
+            </span>
+          </div>
+
+          <form id="form-abertura-permanencia" class="p-5 flex flex-col gap-4">
+            
+            <!-- 1. Seleção do Hóspede Cadastrado -->
+            <div>
+              <label for="select-hospede" class="block text-xs font-semibold text-stone-700 mb-1">
+                Hóspede Titular da Conta <span class="text-rose-500">*</span>
+              </label>
+              <select id="select-hospede" required class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <option value="">Carregando hóspedes cadastrados...</option>
+              </select>
+              <div class="text-[11px] text-stone-500 mt-1">
+                Não encontrou? Cadastre rapidamente o novo hóspede no formulário abaixo.
+              </div>
+            </div>
+
+            <!-- 2. Tipo de Permanência: Hospedagem vs Day Use (RN02) -->
+            <div>
+              <span class="block text-xs font-semibold text-stone-700 mb-1.5">
+                Tipo de Permanência (Regra RN02) <span class="text-rose-500">*</span>
+              </span>
+              <div class="grid grid-cols-2 gap-2">
+                
+                <label class="relative flex items-center justify-center p-3 rounded-xl border border-stone-200 bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors has-[:checked]:border-sky-600 has-[:checked]:bg-sky-50 has-[:checked]:text-sky-900">
+                  <input type="radio" name="tipo_permanencia" value="hospedagem" checked class="sr-only" />
+                  <div class="text-center">
+                    <div class="text-base mb-0.5">🏨</div>
+                    <div class="text-xs font-bold">Hospedagem</div>
+                    <div class="text-[10px] text-stone-500">Com Quarto Ativo</div>
+                  </div>
+                </label>
+
+                <label class="relative flex items-center justify-center p-3 rounded-xl border border-stone-200 bg-stone-50 cursor-pointer hover:bg-stone-100 transition-colors has-[:checked]:border-amber-600 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-900">
+                  <input type="radio" name="tipo_permanencia" value="day_use" class="sr-only" />
+                  <div class="text-center">
+                    <div class="text-base mb-0.5">☀️</div>
+                    <div class="text-xs font-bold">Day Use</div>
+                    <div class="text-[10px] text-stone-500">Sem Quarto / Diária</div>
+                  </div>
+                </label>
+
+              </div>
+              <div id="label-tipo-explicacao" class="text-[11px] text-sky-700 mt-1.5">
+                Hospedagem com pernoite: Número do quarto é OBRIGATÓRIO (RN02).
+              </div>
+            </div>
+
+            <!-- 3. Número do Quarto (Obrigatório para Hospedagem, Oculto para Day Use) -->
+            <div id="campo-quarto-container" class="transition-all">
+              <div class="flex items-center justify-between mb-1">
+                <label for="select-quarto-numero" class="block text-xs font-semibold text-stone-700">
+                  Número do Quarto Ativo (RN02) <span class="text-rose-500">*</span>
+                </label>
+                <a href="/admin.html#quartos" target="_blank" class="text-[10px] text-sky-700 hover:underline">
+                  + Cadastrar Quartos ↗
+                </a>
+              </div>
+              <div class="relative">
+                <select id="select-quarto-numero" required class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg pl-8 pr-3 py-2 text-xs font-mono font-bold focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                  <option value="">Carregando quartos cadastrados...</option>
+                </select>
+                <span class="absolute left-2.5 top-2.5 text-xs text-stone-400">🚪</span>
+              </div>
+              <input type="hidden" id="input-quarto-numero" />
+              <div class="text-[10px] text-stone-500 mt-1 flex items-center justify-between">
+                <span>Quartos ocupados ou em manutenção ficam desabilitados.</span>
+              </div>
+            </div>
+
+            <!-- 4. Credenciais de Acesso: Código da Pulseira + PIN de 4 Dígitos (RF07) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-stone-100">
+              
+              <!-- Pulseira / Código de Barras -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-codigo-pulseira" class="text-xs font-semibold text-stone-700">
+                    Pulseira / RFID
+                  </label>
+                  <button type="button" id="btn-gerar-nova-pulseira" class="text-[10px] text-amber-700 hover:underline">
+                    Nova
+                  </button>
+                </div>
+                <input type="text" id="input-codigo-pulseira" required class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold uppercase focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+              </div>
+
+              <!-- PIN de 4 Dígitos Auto-gerado (RF07) -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="input-pin-acesso" class="text-xs font-semibold text-stone-700">
+                    PIN Acesso (RF07)
+                  </label>
+                  <button type="button" id="btn-gerar-novo-pin" class="text-[10px] text-amber-700 hover:underline">
+                    Gerar Novo
+                  </button>
+                </div>
+                <input type="text" id="input-pin-acesso" readonly class="w-full bg-amber-50/70 border border-amber-200 text-amber-900 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-center tracking-widest focus:outline-none cursor-default" />
+              </div>
+
+            </div>
+
+            <!-- Botão de Efetivar Abertura -->
+            <button type="submit" class="w-full mt-2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2">
+              <span>✓</span>
+              <span>Abrir Permanência &amp; Emitir Cartão</span>
+            </button>
+
+          </form>
+
+        </div>
+
+        <!-- CARD 2: CADASTRO RÁPIDO DE NOVO HÓSPEDE (tabela 'hospedes') -->
+        <div class="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+          
+          <div class="p-4 bg-stone-50 border-b border-stone-100 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-stone-700 text-base">👤</span>
+              <h3 class="text-xs font-bold text-stone-800 uppercase tracking-wider">Novo Cadastro de Hóspede</h3>
+            </div>
+            <span class="text-[10px] font-mono text-stone-500">tabela: hospedes</span>
+          </div>
+
+          <form id="form-cadastro-hospede" class="p-5 flex flex-col gap-3">
+            
+            <div>
+              <label for="hospede-nome" class="block text-xs font-medium text-stone-700 mb-1">
+                Nome Completo <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" id="hospede-nome" placeholder="Ex: Mariana Albuquerque Ferreira" required class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-stone-600 focus:outline-none" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="hospede-documento" class="block text-xs font-medium text-stone-700 mb-1">
+                  Documento (CPF / RG) <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" id="hospede-documento" placeholder="000.000.000-00" required class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 text-xs font-mono focus:ring-2 focus:ring-stone-600 focus:outline-none" />
+              </div>
+
+              <div>
+                <label for="hospede-telefone" class="block text-xs font-medium text-stone-700 mb-1">
+                  Telefone / WhatsApp
+                </label>
+                <input type="text" id="hospede-telefone" placeholder="(11) 99999-9999" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 text-xs font-mono focus:ring-2 focus:ring-stone-600 focus:outline-none" />
+              </div>
+            </div>
+
+            <div>
+              <label for="hospede-email" class="block text-xs font-medium text-stone-700 mb-1">
+                E-mail para Extrato Digital
+              </label>
+              <input type="email" id="hospede-email" placeholder="hospede@email.com" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-stone-600 focus:outline-none" />
+            </div>
+
+            <button type="submit" class="w-full mt-1 py-2 px-3 rounded-lg bg-stone-800 hover:bg-stone-900 text-stone-100 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5">
+              <span>+</span>
+              <span>Cadastrar Hóspede</span>
+            </button>
+
+          </form>
+
+        </div>
+
+      </div>
+
+      <!-- COLUNA DA DIREITA: PAINEL DE CONTROLE E LISTAGEM DE PERMANÊNCIAS -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        
+        <!-- BARRA DE CONTROLE: BUSCA E FILTROS -->
+        <div class="bg-white rounded-xl border border-stone-200 p-4 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          
+          <!-- Filtros por tipo (Pills) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+            <button type="button" class="btn-filtro-tipo px-3 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white shadow-sm transition" data-tipo="todas_ativas">
+              Todas Ativas
+            </button>
+            <button type="button" class="btn-filtro-tipo px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition" data-tipo="hospedagem">
+              🏨 Hospedagem
+            </button>
+            <button type="button" class="btn-filtro-tipo px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition" data-tipo="day_use">
+              ☀️ Day Use
+            </button>
+            <button type="button" class="btn-filtro-tipo px-3 py-1.5 rounded-lg text-xs font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition" data-tipo="fechadas">
+              Encerradas
+            </button>
+          </div>
+
+          <!-- Busca Instantânea -->
+          <div class="relative w-full sm:w-64">
+            <input type="text" id="input-busca-permanencias" placeholder="Buscar hóspede, quarto, pulseira..." class="w-full bg-stone-50 border border-stone-200 text-stone-800 rounded-lg pl-8 pr-3 py-1.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+            <span class="absolute left-2.5 top-2 text-stone-400 text-xs">🔍</span>
+          </div>
+
+        </div>
+
+        <!-- LISTA DE CARDS DE PERMANÊNCIA -->
+        <div id="lista-permanencias-container" class="grid grid-cols-1 gap-3">
+          <!-- Populado via JavaScript -->
+        </div>
+
+        <!-- Estado Vazio -->
+        <div id="permanencias-vazio" class="hidden bg-white rounded-xl border border-stone-200 p-8 text-center text-stone-400">
+          <div class="text-3xl mb-2">🏖️</div>
+          <div class="text-sm font-semibold text-stone-700">Nenhuma permanência encontrada</div>
+          <div class="text-xs text-stone-400 mt-1">Ajuste os filtros de busca ou abra uma nova permanência na coluna ao lado.</div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: CARTÃO DE BOAS-VINDAS & QR CODE PARA O CLIENTE -->
+  <div id="modal-cartao-qr" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-stone-200 overflow-hidden animate-fade-in flex flex-col">
+      
+      <!-- Cabeçalho do Cartão -->
+      <div class="bg-stone-900 text-white p-5 border-b border-stone-800 flex items-start justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase text-amber-400 tracking-wider font-bold">Hotel &amp; Day Use · Acesso Digital</div>
+          <h3 id="cartao-hospede-nome" class="text-lg font-bold text-white mt-0.5">Nome do Hóspede</h3>
+          <div id="cartao-tipo-permanencia" class="text-xs text-stone-400 mt-0.5">Hospedagem com Quarto</div>
+        </div>
+        <button type="button" class="btn-fechar-modal text-stone-400 hover:text-white text-lg p-1">
+          ✕
+        </button>
+      </div>
+
+      <!-- Conteúdo do Cartão (QR Code e Credenciais) -->
+      <div class="p-6 flex flex-col items-center gap-4 bg-stone-50/50">
+        
+        <!-- Renderização do QR Code Nativo -->
+        <div id="cartao-qrcode-render" class="flex items-center justify-center">
+          <!-- Renderizado via JavaScript -->
+        </div>
+
+        <div class="text-center">
+          <div class="text-xs font-semibold text-stone-800">Aponte a câmera do celular no QR Code</div>
+          <div class="text-[11px] text-stone-500 mt-0.5">Acesso direto ao extrato, consumo e aprovação digital</div>
+        </div>
+
+        <!-- Dados de Credencial em Destaque -->
+        <div class="w-full grid grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-stone-200 text-xs">
+          
+          <div id="cartao-quarto-container">
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Quarto</div>
+            <div id="cartao-quarto-numero" class="text-base font-bold font-mono text-sky-700">101</div>
+          </div>
+
+          <div>
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Pulseira / ID</div>
+            <div id="cartao-pulseira-codigo" class="text-base font-bold font-mono text-stone-800">PLS-0000</div>
+          </div>
+
+          <div class="col-span-2 pt-2 border-t border-stone-100 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-stone-400 uppercase font-semibold">PIN de Segurança (RF07)</div>
+              <div id="cartao-pin-codigo" class="text-xl font-bold font-mono text-amber-700 tracking-widest">0000</div>
+            </div>
+            <span class="text-[10px] text-stone-400 italic">Solicitado na confirmação</span>
+          </div>
+
+        </div>
+
+        <!-- Link Direto Copiável -->
+        <div class="w-full">
+          <label for="cartao-link-cliente" class="block text-[10px] uppercase font-semibold text-stone-400 mb-1">
+            Link de Autoatendimento
+          </label>
+          <div class="flex items-center gap-1.5">
+            <input type="text" id="cartao-link-cliente" readonly class="w-full bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs font-mono text-stone-600 select-all focus:outline-none" />
+            <button type="button" id="btn-copiar-link-cliente" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-white text-xs font-semibold whitespace-nowrap transition">
+              Copiar
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="p-4 bg-stone-100 border-t border-stone-200 flex items-center justify-between gap-2">
+        <button type="button" id="btn-imprimir-cartao" class="px-3.5 py-2 rounded-xl bg-white border border-stone-300 text-stone-700 hover:bg-stone-50 font-semibold text-xs flex items-center gap-1.5 transition">
+          <span>🖨️</span>
+          <span>Imprimir Cartão</span>
+        </button>
+
+        <button type="button" class="btn-fechar-modal px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition">
+          Concluir
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: SUPORTE A CREDENCIAIS (RF08 - REEMISSÃO DE PIN / BLOQUEIO) -->
+  <div id="modal-suporte-rf08" class="modal-overlay hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-stone-200 overflow-hidden animate-fade-in flex flex-col">
+      
+      <!-- Cabeçalho -->
+      <div class="bg-stone-900 text-white p-5 border-b border-stone-800 flex items-start justify-between">
+        <div>
+          <div class="text-[10px] font-mono uppercase text-amber-400 tracking-wider font-bold">Suporte e Segurança · Regra RF08</div>
+          <h3 class="text-base font-bold text-white mt-0.5">Reemissão e Bloqueio de Credenciais</h3>
+          <div id="suporte-hospede-desc" class="text-xs text-stone-400 mt-0.5">Hóspede · Quarto</div>
+        </div>
+        <button type="button" class="btn-fechar-modal text-stone-400 hover:text-white text-lg p-1">
+          ✕
+        </button>
+      </div>
+
+      <!-- Conteúdo do Formulário de Suporte -->
+      <div class="p-6 flex flex-col gap-4 text-xs">
+        
+        <!-- Alerta de Regra RF08: Preservação do Saldo e Consumos -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
+          <span class="text-amber-700 text-lg">🛡️</span>
+          <div>
+            <div class="font-bold text-amber-900 text-xs">Garantia de Integridade RF08</div>
+            <div class="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+              A reemissão gera um novo PIN e vincula uma nova pulseira <strong>sem alterar</strong> o histórico de consumos, saldo devedor ou propostas confirmadas anteriores.
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Atual -->
+        <div class="bg-stone-50 p-3 rounded-xl border border-stone-200 grid grid-cols-2 gap-3">
+          <div>
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Pulseira Atual</div>
+            <div id="suporte-pulseira-atual" class="font-mono font-bold text-stone-800 text-sm">PLS-0000</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">PIN Atual</div>
+            <div id="suporte-pin-atual" class="font-mono font-bold text-stone-800 text-sm">0000</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Saldo Devedor Preservado</div>
+            <div id="suporte-saldo-preservado" class="font-mono font-bold text-stone-900 text-sm">R$ 0,00</div>
+          </div>
+          <div>
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Status de Segurança</div>
+            <div class="mt-0.5">
+              <span id="suporte-status-credencial" class="text-xs font-semibold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+                Credenciais Ativas
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opção 1: Nova Pulseira para Reemissão -->
+        <div>
+          <label for="suporte-nova-pulseira" class="block font-semibold text-stone-700 mb-1">
+            Novo Código de Pulseira / RFID
+          </label>
+          <input type="text" id="suporte-nova-pulseira" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 font-mono font-bold uppercase focus:ring-2 focus:ring-amber-500 focus:outline-none" />
+          <div class="text-[10px] text-stone-500 mt-1">
+            Um novo PIN de 4 dígitos será gerado automaticamente pelo servidor.
+          </div>
+        </div>
+
+        <!-- Motivo da Operação (Audit Trail - RN27) -->
+        <div>
+          <label for="suporte-motivo-operacao" class="block font-semibold text-stone-700 mb-1">
+            Motivo da Operação (Registrado na Trilha de Auditoria - RN27) <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="suporte-motivo-operacao" placeholder="Ex: Pulseira perdida na piscina pelo hóspede" class="w-full bg-stone-50 border border-stone-300 text-stone-800 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-stone-600 focus:outline-none" />
+        </div>
+
+      </div>
+
+      <!-- Botões de Ação do Suporte -->
+      <div class="p-4 bg-stone-100 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2">
+        
+        <!-- Botão Bloquear Credencial -->
+        <button type="button" id="btn-confirmar-bloqueio" class="px-3.5 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-xs border border-rose-300 transition flex items-center gap-1.5">
+          <span>🚫</span>
+          <span>Bloquear Pulseira</span>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button type="button" class="btn-fechar-modal px-3.5 py-2 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-700 font-semibold text-xs transition">
+            Cancelar
+          </button>
+          
+          <button type="button" id="btn-confirmar-reemissao" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5">
+            <span>🔑</span>
+            <span>Reemitir Nova Credencial</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST DE NOTIFICAÇÕES GLOBAIS -->
+  <div id="notificacao-toast" class="hidden fixed bottom-5 right-5 z-50 max-w-sm p-4 rounded-xl shadow-2xl border text-white transition-all duration-300 opacity-0 translate-y-2 flex items-start gap-3">
+    <div id="notificacao-icone" class="text-lg font-bold">✓</div>
+    <div class="flex-1">
+      <div id="notificacao-texto" class="text-xs font-semibold leading-relaxed">
+        Operação executada com sucesso.
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS DO ECOSSISTEMA SUPABASE DO HOTEL -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/db-schema.js"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/recepcao.js"></script>
+
+</body>
+</html>

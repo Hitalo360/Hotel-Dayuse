@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDV Atendente · Hotel & Day Use</title>
+  <meta name="description" content="Terminal de Atendimento e Lançamento de Consumo com envio de propostas para clientes." />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+</head>
+<body class="bg-stone-100 text-stone-900 min-h-screen flex flex-col">
+
+  <!-- Cabeçalho Principal -->
+  <header class="bg-stone-900 text-white border-b border-stone-800 sticky top-0 z-40 px-4 lg:px-8 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      
+      <!-- Marca e Identidade -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-lg">
+          H
+        </div>
+        <div>
+          <div class="text-sm font-bold tracking-tight flex items-center gap-2">
+            <span>Hotel & Day Use</span>
+            <span class="text-[10px] font-mono uppercase bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">PDV Atendente</span>
+          </div>
+          <div class="text-[11px] text-stone-400">Terminal de Lançamento e Envio de Propostas</div>
+        </div>
+      </div>
+
+      <!-- Links Rápidos de Navegação entre Módulos -->
+      <nav class="hidden md:flex items-center gap-2">
+        <a href="/index.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Central / Simulador
+        </a>
+        <a href="/recepcao.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Recepção
+        </a>
+        <a href="/cliente.html" target="_blank" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>Abrir Tela Cliente</span>
+          <span class="text-[10px] opacity-70">↗</span>
+        </a>
+        <a href="/caixa.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors">
+          Caixa & Fechamento
+        </a>
+        <a href="/admin.html" class="px-3 py-1.5 rounded-lg text-xs text-stone-300 hover:text-white hover:bg-stone-800 transition-colors flex items-center gap-1">
+          <span>⚙️ Admin / Cadastros</span>
+        </a>
+      </nav>
+
+      <!-- Perfil Atendente e Seleção -->
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div id="atendente-nome" class="text-xs font-semibold text-stone-100">Carregando...</div>
+          <div id="atendente-funcao" class="text-[10px] text-stone-400">Atendente</div>
+        </div>
+        <select id="seletor-atendente" class="bg-stone-800 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-amber-500">
+          <!-- Populado via JavaScript -->
+        </select>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Coluna Esquerda: Identificação do Hóspede e Catálogo de Produtos (7 cols) -->
+    <section class="lg:col-span-7 flex flex-col gap-5">
+
+      <!-- Bloco de Seleção de Quarto / Day Use -->
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-stone-500">Comanda / Destinatário</h2>
+            <p class="text-xs text-stone-400">Selecione o Quarto ou Day Use para vincular a proposta</p>
+          </div>
+          <button type="button" id="btn-abrir-camera" class="touch-target px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors">
+            <span>📷 Ler Código / QR</span>
+          </button>
+        </div>
+
+        <!-- Barra de busca rápida de permanência -->
+        <div class="mb-3">
+          <input type="text" id="busca-permanencia" placeholder="Buscar por número do quarto, nome ou CPF..." class="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:border-stone-900 transition-all placeholder-stone-400" />
+        </div>
+
+        <!-- Chips de Seleção Rápida de Hóspedes Ativos -->
+        <div id="chips-permanencias" class="flex items-center gap-2 overflow-x-auto pb-1 mb-3 scrollbar-none">
+          <!-- Populado via JS -->
+        </div>
+
+        <!-- Cartão da Permanência Atualmente Selecionada -->
+        <div id="card-permanencia-selecionada" class="hidden bg-stone-900 text-white rounded-xl p-3.5 flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="perm-tipo-identificacao" class="text-xs font-bold text-amber-400 uppercase tracking-wide">Quarto 204</span>
+              <span class="text-stone-500 text-xs">·</span>
+              <span id="perm-hospede-nome" class="text-xs font-semibold text-stone-200">Lucas Mendes</span>
+            </div>
+            <div id="perm-documento" class="text-[11px] text-stone-400 mt-0.5">CPF: 042.891.332-15 · PIN: 4821</div>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-stone-400 uppercase">Saldo Consumo Atual</div>
+            <div id="perm-saldo" class="text-sm font-bold text-emerald-400">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloco do Catálogo de Produtos -->
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs flex-1 flex flex-col">
+        
+        <!-- Cabeçalho do Catálogo com Filtros e Busca -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-xs font-bold uppercase tracking-wider text-stone-500">Catálogo de Produtos</h2>
+            <p class="text-xs text-stone-400">Itens com preços vigentes para composição da proposta</p>
+          </div>
+          <div class="w-full sm:w-64">
+            <input type="text" id="busca-produto" placeholder="Buscar produto ou código de barras..." class="w-full text-xs px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:border-stone-900 transition-all placeholder-stone-400" />
+          </div>
+        </div>
+
+        <!-- Categorias -->
+        <div id="filtros-categoria" class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-4 scrollbar-none">
+          <!-- Populado via JS -->
+        </div>
+
+        <!-- Grade de Produtos -->
+        <div id="grid-produtos" class="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1 overflow-y-auto max-h-[580px] pr-1">
+          <!-- Populado via JS -->
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Coluna Direita: Carrinho Dinâmico e Monitor em Tempo Real (5 cols) -->
+    <section class="lg:col-span-5 flex flex-col gap-5">
+
+      <!-- Carrinho de Composição de Proposta -->
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-3">
+          <div>
+            <h3 class="text-sm font-bold text-stone-900">Carrinho da Proposta</h3>
+            <span id="carrinho-qtd-itens" class="text-xs text-stone-500">0 itens adicionados</span>
+          </div>
+          <div class="text-right">
+            <div class="text-[10px] text-stone-400 uppercase font-semibold">Valor Total</div>
+            <div id="carrinho-total" class="text-lg font-extrabold text-stone-900">R$ 0,00</div>
+          </div>
+        </div>
+
+        <!-- Lista de Itens no Carrinho -->
+        <div id="lista-carrinho" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
+          <!-- Populado via JS -->
+        </div>
+
+        <!-- Estado Vazio do Carrinho -->
+        <div id="carrinho-vazio" class="py-10 text-center text-stone-400">
+          <div class="text-2xl mb-1">🛒</div>
+          <p class="text-xs">O carrinho está vazio.</p>
+          <p class="text-[11px] text-stone-400 mt-0.5">Selecione produtos no catálogo ou bipe com o leitor.</p>
+        </div>
+
+        <!-- Observações Gerais da Proposta -->
+        <div class="mt-4 pt-3 border-t border-stone-100">
+          <label class="block text-xs font-semibold text-stone-700 mb-1">Observações do Atendimento (Opcional)</label>
+          <textarea id="obs-geral" rows="2" placeholder="Ex: Entregar nas espreguiçadeiras 14 e 15 da piscina..." class="w-full text-xs p-2.5 bg-stone-50 border border-stone-200 rounded-xl focus:bg-white focus:outline-none focus:border-stone-900 placeholder-stone-400"></textarea>
+        </div>
+
+        <!-- Aviso de Regra de Negócio -->
+        <div class="mt-3 p-2.5 bg-amber-50/80 rounded-xl border border-amber-200/60 text-[11px] text-amber-900 flex items-start gap-2">
+          <span class="text-amber-600 font-bold mt-0.5">ℹ</span>
+          <span>Ao gerar, os preços são <strong>congelados</strong> e a proposta terá <strong>5 minutos</strong> de validade para conferência e confirmação exclusiva do hóspede.</span>
+        </div>
+
+        <!-- Botão Principal de Envio -->
+        <button type="button" id="btn-enviar-proposta" disabled class="mt-3 w-full touch-target py-3 bg-stone-900 hover:bg-stone-800 disabled:bg-stone-200 disabled:text-stone-400 disabled:cursor-not-allowed text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm">
+          Gerar e Enviar Proposta ao Hóspede
+        </button>
+      </div>
+
+      <!-- Monitor em Tempo Real das Propostas -->
+      <div class="bg-white rounded-2xl border border-stone-200 p-4 shadow-xs flex-1 flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-stone-100 mb-3">
+          <div>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500">Monitor em Tempo Real</h3>
+            <p class="text-[11px] text-stone-400">Acompanhamento de status das propostas recentes</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Sync Ativo
+          </span>
+        </div>
+
+        <!-- Lista de Propostas Monitoradas -->
+        <div id="lista-propostas-monitor" class="space-y-3 overflow-y-auto max-h-80 pr-1 flex-1">
+          <!-- Populado via JS -->
+        </div>
+
+        <!-- Vazio de Propostas -->
+        <div id="propostas-vazio" class="py-8 text-center text-stone-400">
+          <p class="text-xs">Nenhuma proposta recente registrada.</p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal Câmera / Barcode Scanner -->
+  <div id="modal-camera" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="text-sm font-bold text-stone-900">Leitor de Câmera (QR Code & Código de Barras)</h4>
+        <button type="button" id="btn-fechar-camera" class="text-stone-400 hover:text-stone-700 text-lg font-bold">✕</button>
+      </div>
+      <div class="relative w-full aspect-video bg-black rounded-xl overflow-hidden mb-3">
+        <video id="video-camera" playsinline class="w-full h-full object-cover"></video>
+        <div class="absolute inset-0 border-2 border-amber-500/50 pointer-events-none flex items-center justify-center">
+          <div class="w-48 h-32 border-2 border-amber-400 rounded-lg"></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-stone-500 text-center">Aponte a câmera para a comanda, pulseira de Day Use ou código de barras do produto.</p>
+    </div>
+  </div>
+
+  <!-- Modal Compartilhamento QR Code da Proposta -->
+  <div id="modal-qr-proposta" class="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl text-center">
+      <div class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold mb-3">
+        ✓
+      </div>
+      <h4 class="text-base font-bold text-stone-900 mb-1">Proposta Criada com Sucesso!</h4>
+      <p class="text-xs text-stone-500 mb-4">Apresente este QR Code para o hóspede ler com o celular ou copie o link direto:</p>
+
+      <div class="bg-stone-50 p-4 rounded-xl border border-stone-200 inline-block mb-3">
+        <img id="qr-proposta-img" src="" alt="QR Code Proposta" class="w-48 h-48 mx-auto" />
+      </div>
+
+      <div class="space-y-1 mb-4 text-xs">
+        <div><strong>Código:</strong> <span id="qr-proposta-codigo" class="font-mono text-amber-700">PROP-XXXX</span></div>
+        <div><strong>Destino:</strong> <span id="qr-proposta-quarto">Quarto 204</span></div>
+        <div><strong>Valor:</strong> <span id="qr-proposta-valor" class="font-bold text-stone-900">R$ 0,00</span></div>
+      </div>
+
+      <div class="flex items-center gap-2 mb-4">
+        <input type="text" id="qr-proposta-link" readonly class="w-full text-[11px] px-2.5 py-2 bg-stone-100 border border-stone-200 rounded-lg font-mono text-stone-600 truncate" />
+        <button type="button" id="btn-copiar-link-proposta" class="touch-target px-3 py-2 bg-stone-900 text-white rounded-lg text-xs font-semibold hover:bg-stone-800">
+          Copiar
+        </button>
+      </div>
+
+      <button type="button" id="btn-fechar-qr-proposta" class="w-full touch-target py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-xl text-xs font-bold transition-colors">
+        Fechar e Voltar ao PDV
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Flutuante -->
+  <div id="toast-notificacao" class="hidden"></div>
+
+  <!-- Scripts do Sistema -->
+  <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/db-schema.js"></script>
+  <script src="/assets/js/supabase.js"></script>
+  <script src="/assets/js/barcode-scanner.js"></script>
+  <script src="/assets/js/atendente.js"></script>
+
+</body>
+</html>
